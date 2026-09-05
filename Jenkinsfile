@@ -4,8 +4,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/skysamuels-art/my-node-app.git',
-                    branch: 'main'
+                git branch: 'main',
+                    url: 'https://github.com/skysamuels-art/my-node-app.git'
             }
         }
 
@@ -30,7 +30,7 @@ pipeline {
                         passwordVariable: 'DOCKER_PASSWORD'
                     )
                 ]) {
-                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
                     sh 'docker push skysamuels/my-node-app:latest'
                 }
             }
@@ -41,6 +41,12 @@ pipeline {
                 sh 'docker rm -f my-node-app || true'
                 sh 'docker run -d --name my-node-app -p 3000:3000 skysamuels/my-node-app:latest'
             }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker logout || true'
         }
     }
 }
